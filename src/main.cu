@@ -79,30 +79,15 @@ __global__ void create_cornell_box(Entity **elist, Entity **eworld, Camera **cam
             new ConstantTexture(Vec3(0, 1, 0))
         ))));
         elist[i++] = new FlipFace(new XYRect(0, 555, 0, 555, 555, new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))));
-        elist[i++] = new ConstantMedium(
-            new Translate(
-                new RotateY(
-                    new Box(Vec3(0, 0, 0), Vec3(165, 330, 165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))),
-                    15
-                ),
-                Vec3(265, 0, 295)
-            ),
-            0.05,
-            new ConstantTexture(Vec3(0, 0, 0)),
-            &local_rand_state
-        );
-        elist[i++] = new ConstantMedium(
-            new Translate(
-                new RotateY(
-                    new Box(Vec3(0, 0, 0), Vec3(165, 165, 165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))),
-                    -18
-                ),
-                Vec3(130, 0, 65)
-            ),
-            0.01,
-            new ConstantTexture(Vec3(0.8, 0.8, 0.8)),
-            &local_rand_state
-        );
+
+        elist[i++] = new Translate(new RotateY(
+                new Box(Vec3(0, 0, 0), Vec3(165, 330, 165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))),
+                15),Vec3(265, 0, 295));
+
+        elist[i++] = new Translate(new RotateY(
+                new Box(Vec3(0,0,0), Vec3(165,165,165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))), -18),
+                                   Vec3(130,0,65));
+
         *eworld = new EntityList(elist, i);
 
         Vec3 lookfrom(278, 278, -800);
@@ -182,8 +167,9 @@ int main(int argc, char* argv[]) {
     unsigned char *tex_data_host = stbi_load("assets/earthmap.jpg", &tex_x, &tex_y, &tex_n, 0);
 
     unsigned char *tex_data;
+    //checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
-    checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
+
 
     ImageTexture **texture;
     checkCudaErrors(cudaMalloc((void **)&texture, sizeof(ImageTexture*)));

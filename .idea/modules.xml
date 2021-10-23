@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/RT-CUDA.iml" filepath="$PROJECT_DIR$/.idea/RT-CUDA.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/RT_CUDA.iml" filepath="$PROJECT_DIR$/.idea/RT_CUDA.iml" />
     </modules>
   </component>
 </project>
