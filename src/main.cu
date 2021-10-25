@@ -1,11 +1,11 @@
 #include <iostream>
 #include <string>
+#include <cfloat>
 #include <curand_kernel.h>
 
 #include "bvh_node.cuh"
 #include "camera.cuh"
 #include "entitylist.cuh"
-#include "float.h"
 #include "sphere.cuh"
 #include "rect.cuh"
 #include "diffuse_light.cuh"
