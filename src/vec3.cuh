@@ -1,9 +1,13 @@
 #ifndef Vec3H__
 #define Vec3H__
 
-#include <math.h>
-#include <stdlib.h>
+#define PI 3.1415926535
+
+#include <cmath>
+#include <cstdlib>
 #include <iostream>
+#include <curand_uniform.h>
+
 
 class Vec3 {
 public:
@@ -161,6 +165,44 @@ __host__ __device__ bool refract(const Vec3& v, const Vec3& n, float ni_over_nt,
     }
     else
         return false;
+}
+
+class onw {
+public:
+    __host__ __device__ onw() {}
+    __host__ __device__ inline Vec3 operator[](int i) const { return axis[i]; }
+    __host__ __device__ Vec3 e1() const { return axis[0]; }
+    __host__ __device__ Vec3 e2() const { return axis[1]; }
+    __host__ __device__ Vec3 e3() const { return axis[2]; }
+
+    __host__ __device__ Vec3 local(double a, double b, double c){return a*e1() + b*e2() + c*e3();}
+    __host__ __device__ Vec3 local(const Vec3& v){return v.x()*e1() + v.y()*e2() + v.z()*e3();}
+    __host__ __device__ void build_form_e3(const Vec3& n);
+
+
+public:
+    Vec3 axis[3];
+};
+
+__device__ Vec3 random_cosine_direction(curandState *state){
+
+    float r1 = curand_uniform(state);
+    float r2 = curand_uniform(state);
+
+    float z = sqrt(1 - r2);
+
+    float phi = 2*PI*r1;
+    float x = cos(phi)*sqrt(r2);
+    float y = sin(phi)*sqrt(r2);
+
+    return Vec3(x,y,z);
+}
+
+__host__ __device__ void onw::build_form_e3(const Vec3& n){
+    axis[2] = unitv(n);
+    Vec3 a = (fabs(e3().x()) > 0.9 ? Vec3(0,1,0) : Vec3(1,0,0));
+    axis[1] = unitv(cross(e3(), a));
+    axis[0] = cross(e3(), e2());
 }
 
 #endif

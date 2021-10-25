@@ -44,9 +44,11 @@ __device__ Vec3 color(const Ray& r, const Vec3& background, Entity **world, cura
             Ray scattered;
             Vec3 attenuation;
             Vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
-            if(rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
+            double pdf;
+            //Vec3 albedo;
+            if(rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state, pdf)) {
                 cur_attenuation *= attenuation;
-                cur_emitted += emitted * cur_attenuation;
+                cur_emitted += emitted * cur_attenuation / pdf;
                 cur_ray = scattered;
             }
             else {
@@ -80,9 +82,15 @@ __global__ void create_cornell_box(Entity **elist, Entity **eworld, Camera **cam
         ))));
         elist[i++] = new FlipFace(new XYRect(0, 555, 0, 555, 555, new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))));
 
+        /*
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0, 0, 0), Vec3(165, 330, 165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))),
                 15),Vec3(265, 0, 295));
+        */
+
+        elist[i++] = new Translate(new RotateY(
+                new Box(Vec3(0,0,0), Vec3(165,330,165), new Metal(Vec3(0.75,0.75,0.75),0.0)),15), Vec3(265,0,295)
+                );
 
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0,0,0), Vec3(165,165,165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))), -18),
@@ -167,9 +175,9 @@ int main(int argc, char* argv[]) {
     unsigned char *tex_data_host = stbi_load("assets/earthmap.jpg", &tex_x, &tex_y, &tex_n, 0);
 
     unsigned char *tex_data;
-    //checkCudaErrors(cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char)));
 
+    cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char));
+    cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice);
 
     ImageTexture **texture;
     checkCudaErrors(cudaMalloc((void **)&texture, sizeof(ImageTexture*)));
@@ -187,7 +195,7 @@ int main(int argc, char* argv[]) {
 
     // Allocate 2nd random state to be initialized for the world creation
     rand_init<<<1,1>>>(d_rand_state2);
-    checkCudaErrors(cudaGetLastError());
+    //checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
     // Building the world
@@ -199,16 +207,16 @@ int main(int argc, char* argv[]) {
     Camera **camera;
     checkCudaErrors(cudaMalloc((void **)&camera, sizeof(Camera*)));
     create_cornell_box<<<1, 1>>>(elist, eworld, camera, nx, ny, texture, d_rand_state2);
-    checkCudaErrors(cudaGetLastError());
+    //checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
     dim3 blocks(nx/tx+1,ny/ty+1);
     dim3 threads(tx,ty);
     render_init<<<blocks, threads>>>(nx, ny, d_rand_state);
-    checkCudaErrors(cudaGetLastError());
+    //checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
     render<<<blocks, threads>>>(image, nx, ny,  ns, camera, eworld, d_rand_state);
-    checkCudaErrors(cudaGetLastError());
+    //checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
     uint8_t* imageHost = new uint8_t[nx * ny * 3 * sizeof(uint8_t)];
@@ -224,10 +232,11 @@ int main(int argc, char* argv[]) {
 
     // Clean up
     checkCudaErrors(cudaDeviceSynchronize());
-    checkCudaErrors(cudaGetLastError());
+    //checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaFree(camera));
     checkCudaErrors(cudaFree(eworld));
     checkCudaErrors(cudaFree(elist));
     checkCudaErrors(cudaFree(d_rand_state));
     checkCudaErrors(cudaFree(image));
+    cudaDeviceReset();
 }

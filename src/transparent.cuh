@@ -13,7 +13,7 @@ class Transparent : public Material {
 public:
     __device__ Transparent(float ri) : ref_idx(ri) {}
     __device__ virtual bool scatter(const Ray& r_in, const HitRecord& rec,
-                            Vec3& attenuation, Ray& scattered, curandState *local_rand_state) const {
+                            Vec3& attenuation, Ray& scattered, curandState *local_rand_state, double &pdf) const {
         Vec3 outward_normal;
         Vec3 reflected = reflect(r_in.direction(), rec.normal);
         float ni_over_nt;
@@ -50,6 +50,9 @@ public:
 
         return true;
     }
+
+    __device__ virtual double scattering_pdf(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const { return 0.0;}
+
 private:
     float ref_idx;
 };
