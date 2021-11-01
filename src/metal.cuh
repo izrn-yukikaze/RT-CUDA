@@ -15,7 +15,7 @@ public:
         return (dot(scattered.direction(), rec.normal) > 0);
     }
 
-    __device__ virtual double scattering_pdf(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const { return 0.0;}
+    __device__ virtual double scattering_pdf(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const { return 1.0;}
 
     Vec3 albedo;
     float fuzz;

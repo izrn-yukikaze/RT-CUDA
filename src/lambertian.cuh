@@ -16,7 +16,7 @@ public:
         Vec3 direction = e_base.local(random_cosine_direction(local_rand_state));
         scattered = Ray(rec.p, unitv(direction), r_in.time());
         attenuation = albedo->value(rec.u, rec.v, rec.p);
-        pdf = dot(e_base.e3(), scattered.direction()) / PI;
+        pdf = dot(e_base.e3(), unitv(scattered.direction())) / PI;
         return true;
     }
 

@@ -45,48 +45,67 @@ __device__ Vec3 color(const Ray& r, const Vec3& background, Entity **world, cura
             Vec3 attenuation;
             Vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
             double pdf;
-            //Vec3 albedo;
-            if(rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state, pdf)) {
-                cur_attenuation *= attenuation;
-                cur_emitted += emitted * cur_attenuation / pdf;
+            Vec3 albedo;
+            if(rec.mat_ptr->scatter(cur_ray, rec, albedo, scattered, local_rand_state, pdf)) {
+
+                Vec3 on_light = Vec3(curand_uniform(local_rand_state)*130+213, 554, curand_uniform(local_rand_state)*105+227);
+                Vec3 to_light = on_light - rec.p;
+                double distance_squared = to_light.l1();
+                to_light = unitv(to_light);
+
+                if(dot(rec.normal, to_light) < 0) return cur_emitted;
+
+                double light_area = 230 * 215;
+                auto light_cosine = fabs(to_light.y());
+
+                if(light_cosine < 0.000001) return cur_emitted;
+
+                pdf = distance_squared / (light_cosine * light_area);
+
+                scattered = Ray(rec.p, to_light, r.time());
+
+
+                cur_attenuation *= cur_emitted + albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered) / pdf;
+                cur_emitted += emitted;
                 cur_ray = scattered;
             }
             else {
-                return cur_emitted + emitted * cur_attenuation;
+                return cur_emitted + cur_attenuation;
             }
         }
         else {
             return cur_emitted;
         }
     }
-    return cur_emitted; // exceeded recursion
-}
+    return cur_emitted + cur_attenuation; // exceeded recursion
 
+}
 #define RND (curand_uniform(&local_rand_state))
 
 __global__ void create_cornell_box(Entity **elist, Entity **eworld, Camera **camera, int nx, int ny, ImageTexture** texture, curandState *rand_state) {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         curandState local_rand_state = *rand_state;
         int i = 0;
-        elist[i++] = new FlipFace(new YZRect(0, 555, 0, 555, 555, new Lambertian(new ConstantTexture(Vec3(0.12, 0.45, 0.15)))));
+        elist[i++] = new YZRect(0, 555, 0, 555, 555, new Lambertian(new ConstantTexture(Vec3(0.12, 0.45, 0.15))));
         elist[i++] = new YZRect(0, 555, 0, 555, 0, new Lambertian(new ConstantTexture(Vec3(0.65, 0.05, 0.05))));
-        elist[i++] = new XZRect(113, 443, 127, 432, 554, new DiffuseLight(new ConstantTexture(Vec3(1.0, 1.0, 1.0))));
+        elist[i++] = new XZRect(163, 393, 177, 382, 554, new DiffuseLight(new ConstantTexture(Vec3(1.0, 1.0, 1.0))));
         elist[i++] = new XZRect(0, 555, 0, 555, 0, new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73))));
-        elist[i++] = new FlipFace(new XZRect(0, 555, 0, 555, 555, new Lambertian(new CheckerTexture(
+        elist[i++] = new XZRect(0, 555, 0, 555, 555, new Lambertian(new CheckerTexture(
             new ConstantTexture(Vec3(1, 1, 1)),
             new ConstantTexture(Vec3(0, 1, 0))
-        ))));
-        elist[i++] = new FlipFace(new XZRect(0, 555, 0, 555, 555, new Lambertian(new CheckerTexture(
+        )));
+        elist[i++] = new XZRect(0, 555, 0, 555, 555, new Lambertian(new CheckerTexture(
             new ConstantTexture(Vec3(1, 1, 1)),
             new ConstantTexture(Vec3(0, 1, 0))
-        ))));
-        elist[i++] = new FlipFace(new XYRect(0, 555, 0, 555, 555, new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))));
+        )));
+        elist[i++] = new XYRect(0, 555, 0, 555, 555, new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73))));
 
         /*
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0, 0, 0), Vec3(165, 330, 165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))),
                 15),Vec3(265, 0, 295));
         */
+
 
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0,0,0), Vec3(165,330,165), new Metal(Vec3(0.75,0.75,0.75),0.0)),15), Vec3(265,0,295)
@@ -95,6 +114,7 @@ __global__ void create_cornell_box(Entity **elist, Entity **eworld, Camera **cam
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0,0,0), Vec3(165,165,165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))), -18),
                                    Vec3(130,0,65));
+
 
         *eworld = new EntityList(elist, i);
 
@@ -176,7 +196,7 @@ int main(int argc, char* argv[]) {
 
     unsigned char *tex_data;
 
-    cudaMallocManaged(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char));
+    cudaMallocHost(&tex_data, tex_x * tex_y * tex_n * sizeof(unsigned char));
     cudaMemcpy(tex_data, tex_data_host, tex_x * tex_y * tex_n * sizeof(unsigned char), cudaMemcpyHostToDevice);
 
     ImageTexture **texture;
