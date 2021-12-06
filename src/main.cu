@@ -5,6 +5,7 @@
 
 #include "bvh_node.cuh"
 #include "camera.cuh"
+#include "pdf.cuh"
 #include "entitylist.cuh"
 #include "sphere.cuh"
 #include "rect.cuh"
@@ -44,28 +45,15 @@ __device__ Vec3 color(const Ray& r, const Vec3& background, Entity **world, cura
             Ray scattered;
             Vec3 attenuation;
             Vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
-            double pdf;
+            double pdf_val;
             Vec3 albedo;
-            if(rec.mat_ptr->scatter(cur_ray, rec, albedo, scattered, local_rand_state, pdf)) {
+            if(rec.mat_ptr->scatter(cur_ray, rec, albedo, scattered, local_rand_state, pdf_val)) {
 
-                Vec3 on_light = Vec3(curand_uniform(local_rand_state)*130+213, 554, curand_uniform(local_rand_state)*105+227);
-                Vec3 to_light = on_light - rec.p;
-                double distance_squared = to_light.l1();
-                to_light = unitv(to_light);
+                cosine_pdf p(rec.normal);
+                scattered = Ray(rec.p, p.generate(local_rand_state), r.time());
+                pdf_val = p.value(scattered.direction());
 
-                if(dot(rec.normal, to_light) < 0) return cur_emitted;
-
-                double light_area = 230 * 215;
-                auto light_cosine = fabs(to_light.y());
-
-                if(light_cosine < 0.000001) return cur_emitted;
-
-                pdf = distance_squared / (light_cosine * light_area);
-
-                scattered = Ray(rec.p, to_light, r.time());
-
-
-                cur_attenuation *= cur_emitted + albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered) / pdf;
+                cur_attenuation *= cur_emitted + albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered) / pdf_val;
                 cur_emitted += emitted;
                 cur_ray = scattered;
             }

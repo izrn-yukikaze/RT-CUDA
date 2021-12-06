@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="RT_CUDA"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="RT_CUDA">
+				<Option output="/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/RT_CUDA" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/opt/cuda/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/11.1.0/../../../../include/c++/11.1.0"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/11.1.0/../../../../include/c++/11.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/11.1.0/../../../../include/c++/11.1.0/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/11.1.0/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/11.1.0/include-fixed"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 RT_CUDA"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="RT_CUDA/fast">
+				<Option output="/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/RT_CUDA" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/opt/cuda/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/11.1.0/../../../../include/c++/11.1.0"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/11.1.0/../../../../include/c++/11.1.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/11.1.0/../../../../include/c++/11.1.0/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/11.1.0/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/11.1.0/include-fixed"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 RT_CUDA/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/aabb.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/box.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/bvh_node.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/camera.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/cmake-build-debug/CMakeFiles/RT_CUDA.dir/RT_CUDA_generated_main.cu.o">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/constant_medium.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/diffuse_light.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/entity.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/entitylist.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/isotropic.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/lambertian.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/main.cu">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/material.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/metal.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/moving_sphere.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/perlin.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/ray.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/rect.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/sphere.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/stb_image.h">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/stb_image_write.h">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/texture.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/transform.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/transparent.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/vec3.cuh">
+			<Option target="RT_CUDA"/>
+		</Unit>
+		<Unit filename="/home/t0hfu/CLionProjects/RT-CUDA/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

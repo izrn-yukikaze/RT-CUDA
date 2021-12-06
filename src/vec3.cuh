@@ -183,7 +183,7 @@ public:
 public:
     Vec3 axis[3];
 };
-
+/*
 __device__ Vec3 random_cosine_direction(curandState *state){
 
     float r1 = curand_uniform(state);
@@ -197,7 +197,7 @@ __device__ Vec3 random_cosine_direction(curandState *state){
 
     return Vec3(x,y,z);
 }
-
+*/
 __host__ __device__ void onw::build_form_e3(const Vec3& n){
     axis[2] = unitv(n);
     Vec3 a = (fabs(e3().x()) > 0.9 ? Vec3(0,1,0) : Vec3(1,0,0));
