@@ -50,6 +50,24 @@ public:
         return true;
     }
 
+    __device__ virtual double pdf_value(const Vec3 &o, const Vec3 &v) const {
+        HitRecord rec;
+        if(!this->hit(Ray(o, v), 0.001, INFINITY, rec)) return 0;
+
+        double area = (x1-x0) * (z1-z0);
+        double distance_squared = rec.t * rec.t * v.l1();
+        double cosine = fabs(dot(v, rec.normal) / v.l2());
+
+        return distance_squared / cosine / area;
+    }
+
+    __device__ virtual Vec3 random(const Vec3& o, curandState *state) const {
+        auto random_point = Vec3(x0 + (x1-x0)*curand_uniform(state),
+                                 k,
+                                 z0 + (z1-z0)* curand_uniform(state));
+        return random_point - o;
+    }
+
     Material* mp;
     float x0, x1, z0, z1, k;
 };

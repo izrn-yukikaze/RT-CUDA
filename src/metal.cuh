@@ -12,7 +12,7 @@ public:
         scattered = Ray(rec.p, reflected + fuzz * random_in_unit_sphere(local_rand_state));
         attenuation = albedo;
         pdf = 1.0;
-        return (dot(scattered.direction(), rec.normal) > 0);
+        return true;
     }
 
     __device__ virtual double scattering_pdf(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const { return .0;}

@@ -35,7 +35,7 @@ void check_cuda(cudaError_t result, char const *const func, const char *const fi
     }
 }
 
-__device__ Vec3 color(const Ray& r, const Vec3& background, Entity **world, curandState *local_rand_state) {
+__device__ Vec3 color(const Ray& r, const Vec3& background, Entity **world, curandState *local_rand_state, Entity **light) {
     Ray cur_ray = r;
     Vec3 cur_attenuation = Vec3(1.0, 1.0, 1.0);
     Vec3 cur_emitted = Vec3(0.0, 0.0, 0.0);
@@ -49,9 +49,13 @@ __device__ Vec3 color(const Ray& r, const Vec3& background, Entity **world, cura
             Vec3 albedo;
             if(rec.mat_ptr->scatter(cur_ray, rec, albedo, scattered, local_rand_state, pdf_val)) {
 
-                cosine_pdf p(rec.normal);
+                hittable_pdf p1(light[0], rec.p);
+                cosine_pdf p2(rec.normal);
+                mixture_pdf p(&p1, &p2);
+
                 scattered = Ray(rec.p, p.generate(local_rand_state), r.time());
                 pdf_val = p.value(scattered.direction());
+
 
                 cur_attenuation *= cur_emitted + albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered) / pdf_val;
                 cur_emitted += emitted;
@@ -88,17 +92,17 @@ __global__ void create_cornell_box(Entity **elist, Entity **eworld, Camera **cam
         )));
         elist[i++] = new XYRect(0, 555, 0, 555, 555, new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73))));
 
-        /*
+
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0, 0, 0), Vec3(165, 330, 165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))),
                 15),Vec3(265, 0, 295));
-        */
 
 
+        /*
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0,0,0), Vec3(165,330,165), new Metal(Vec3(0.75,0.75,0.75),0.0)),15), Vec3(265,0,295)
                 );
-
+        */
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0,0,0), Vec3(165,165,165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))), -18),
                                    Vec3(130,0,65));
@@ -124,6 +128,12 @@ __global__ void create_cornell_box(Entity **elist, Entity **eworld, Camera **cam
     }
 }
 
+__global__ void set_lights(Entity **lights){
+    if(threadIdx.x == 0 && blockIdx.x == 0){
+        lights[0] = new XZRect(163, 393, 177, 382, 554, new DiffuseLight(new ConstantTexture(Vec3(1.0, 1.0, 1.0))));
+    }
+}
+
 __global__ void rand_init(curandState *rand_state) {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         curand_init(1984, 0, 0, rand_state);
@@ -144,7 +154,7 @@ __global__ void texture_init(unsigned char* tex_data, int nx, int ny, ImageTextu
     }
 }
 
-__global__ void render(Vec3* fb, int max_x, int max_y, int ns, Camera **cam, Entity **world, curandState *randState) {
+__global__ void render(Vec3* fb, int max_x, int max_y, int ns, Camera **cam, Entity **world, curandState *randState, Entity **light) {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
     if((i >= max_x) || (j >= max_y)) return;
@@ -156,7 +166,7 @@ __global__ void render(Vec3* fb, int max_x, int max_y, int ns, Camera **cam, Ent
         float u = float(i + curand_uniform(&local_rand_state)) / float(max_x);
         float v = float(j + curand_uniform(&local_rand_state)) / float(max_y);
         Ray r = (*cam)->get_ray(u, v, &local_rand_state);
-        col += color(r, background, world, &local_rand_state);
+        col += color(r, background, world, &local_rand_state, light);
     }
     randState[pixel_index] = local_rand_state;
     col /= float(ns);
@@ -203,10 +213,12 @@ int main(int argc, char* argv[]) {
 
     // Allocate 2nd random state to be initialized for the world creation
     rand_init<<<1,1>>>(d_rand_state2);
-    //checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
     // Building the world
+    Entity **lights;
+    checkCudaErrors(cudaMalloc((void **)&lights, sizeof(Entity *)));
+    set_lights<<<1, 1>>>(lights);
     Entity **elist;
     int num_entity = 22 * 22 + 1 + 3;
     checkCudaErrors(cudaMalloc((void **)&elist, num_entity * sizeof(Entity*)));
@@ -215,16 +227,13 @@ int main(int argc, char* argv[]) {
     Camera **camera;
     checkCudaErrors(cudaMalloc((void **)&camera, sizeof(Camera*)));
     create_cornell_box<<<1, 1>>>(elist, eworld, camera, nx, ny, texture, d_rand_state2);
-    //checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
     dim3 blocks(nx/tx+1,ny/ty+1);
     dim3 threads(tx,ty);
     render_init<<<blocks, threads>>>(nx, ny, d_rand_state);
-    //checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
-    render<<<blocks, threads>>>(image, nx, ny,  ns, camera, eworld, d_rand_state);
-    //checkCudaErrors(cudaGetLastError());
+    render<<<blocks, threads>>>(image, nx, ny,  ns, camera, eworld, d_rand_state, lights);
     checkCudaErrors(cudaDeviceSynchronize());
 
     uint8_t* imageHost = new uint8_t[nx * ny * 3 * sizeof(uint8_t)];
@@ -240,9 +249,9 @@ int main(int argc, char* argv[]) {
 
     // Clean up
     checkCudaErrors(cudaDeviceSynchronize());
-    //checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaFree(camera));
     checkCudaErrors(cudaFree(eworld));
+    checkCudaErrors(cudaFree(lights));
     checkCudaErrors(cudaFree(elist));
     checkCudaErrors(cudaFree(d_rand_state));
     checkCudaErrors(cudaFree(image));

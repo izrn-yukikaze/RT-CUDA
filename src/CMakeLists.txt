@@ -30,6 +30,7 @@ set(HEADER_FILES
         texture.cuh
         transform.cuh
         transparent.cuh
-        vec3.cuh)
+        vec3.cuh
+        pdf.cuh)
 
 cuda_add_executable(RT_CUDA ${SOURCE_FILES} ${HEADER_FILES})
