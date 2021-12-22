@@ -20,6 +20,12 @@ public:
         return true;
     }
 
+    __device__ virtual bool scatter(const Ray& r_in, const HitRecord& rec, ScatterRecord& srec, curandState *local_rand_state) const {
+        srec.is_specular = false;
+        srec.attenuation = albedo->value(rec.u, rec.v, rec.p);
+        return true;
+    }
+
     __device__ virtual double scattering_pdf(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const {
         auto cosine = dot(rec.normal, unitv(scattered.direction()));
         return cosine < 0 ? 0 : cosine / PI;

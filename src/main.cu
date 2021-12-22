@@ -37,39 +37,39 @@ void check_cuda(cudaError_t result, char const *const func, const char *const fi
 
 __device__ Vec3 color(const Ray& r, const Vec3& background, Entity **world, curandState *local_rand_state, Entity **light) {
     Ray cur_ray = r;
-    Vec3 cur_attenuation = Vec3(1.0, 1.0, 1.0);
+    ScatterRecord srec;
+    srec.attenuation = Vec3(1.0, 1.0, 1.0);
     Vec3 cur_emitted = Vec3(0.0, 0.0, 0.0);
     for(int i = 0; i < 100; i++) {
         HitRecord rec;
         if ((*world)->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
-            Ray scattered;
-            Vec3 attenuation;
             Vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
-            double pdf_val;
-            Vec3 albedo;
-            if(rec.mat_ptr->scatter(cur_ray, rec, albedo, scattered, local_rand_state, pdf_val)) {
+            if(rec.mat_ptr->scatter(cur_ray, rec, srec, local_rand_state)) {
+                if(srec.is_specular){
+                    srec.attenuation *= cur_emitted + srec.attenuation;
+                    cur_ray = srec.specular_ray;
+                } else {
+                    hittable_pdf light_pdf(light[0], rec.p);
+                    cosine_pdf cos_pdf(rec.normal);
+                    mixture_pdf p(&light_pdf, &cos_pdf);
+                    Ray scattered = Ray(rec.p, p.generate(local_rand_state), r.time());
+                    double pdf_val = p.value(scattered.direction());
 
-                hittable_pdf p1(light[0], rec.p);
-                cosine_pdf p2(rec.normal);
-                mixture_pdf p(&p1, &p2);
+                    srec.attenuation *= cur_emitted + srec.attenuation * rec.mat_ptr->scattering_pdf(r, rec, scattered) / pdf_val;
+                    cur_emitted += emitted;
+                    cur_ray = scattered;
+                }
 
-                scattered = Ray(rec.p, p.generate(local_rand_state), r.time());
-                pdf_val = p.value(scattered.direction());
-
-
-                cur_attenuation *= cur_emitted + albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered) / pdf_val;
-                cur_emitted += emitted;
-                cur_ray = scattered;
             }
             else {
-                return cur_emitted + cur_attenuation;
+                return cur_emitted + srec.attenuation;
             }
         }
         else {
             return cur_emitted;
         }
     }
-    return cur_emitted + cur_attenuation; // exceeded recursion
+    return cur_emitted + srec.attenuation; // exceeded recursion
 
 }
 #define RND (curand_uniform(&local_rand_state))
@@ -92,17 +92,17 @@ __global__ void create_cornell_box(Entity **elist, Entity **eworld, Camera **cam
         )));
         elist[i++] = new XYRect(0, 555, 0, 555, 555, new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73))));
 
-
+        /*
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0, 0, 0), Vec3(165, 330, 165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))),
                 15),Vec3(265, 0, 295));
+        */
 
 
-        /*
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0,0,0), Vec3(165,330,165), new Metal(Vec3(0.75,0.75,0.75),0.0)),15), Vec3(265,0,295)
                 );
-        */
+
         elist[i++] = new Translate(new RotateY(
                 new Box(Vec3(0,0,0), Vec3(165,165,165), new Lambertian(new ConstantTexture(Vec3(0.73, 0.73, 0.73)))), -18),
                                    Vec3(130,0,65));
